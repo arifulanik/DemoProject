@@ -33,10 +33,10 @@
     <ClInclude Include="pch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CFirstDialog.h">
+    <ClInclude Include="CSecondDialog.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CSecondDialog.h">
+    <ClInclude Include="CFirstDialog.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -50,10 +50,10 @@
     <ClCompile Include="pch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CFirstDialog.cpp">
+    <ClCompile Include="CSecondDialog.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CSecondDialog.cpp">
+    <ClCompile Include="CFirstDialog.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -5,8 +5,15 @@
 #pragma once
 #include "CFirstDialog.h"
 #include "CSecondDialog.h"
+#include <string>
+#include <fstream>
+#include <sstream>
+#include <vector>
+#include <iostream>
+#include <algorithm>
+#include <map>
 
-
+using namespace std;
 // CDemoProjectDlg dialog
 class CDemoProjectDlg : public CDialogEx
 {
@@ -32,6 +39,8 @@ protected:
 	afx_msg void OnSysCommand(UINT nID, LPARAM lParam);
 	afx_msg void OnPaint();
 	afx_msg HCURSOR OnQueryDragIcon();
+	//afx_msg BOOL OnInitDialog();
+
 	DECLARE_MESSAGE_MAP()
 public:
 	afx_msg void OnTcnSelchangeTab1(NMHDR* pNMHDR, LRESULT* pResult);
@@ -39,7 +48,22 @@ public:
 	CFirstDialog m_First;
 	CSecondDialog m_Second;
 	CWnd* m_pwndShow;
-	CListCtrl m_listCtrl;
+	//tree control variable
+	CTreeCtrl* TreeSoft;
 	CButton m_btnLoadCSV;
-	afx_msg void OnBnClickedLoadcsvBtn();
+	CEdit m_editCSVData;
+	void LoadCSVFile(const CString& filePath);
+	afx_msg void OnBnClickedLoadCSV();
+	void showTree();
+
+	CListCtrl m_ListCtrl;
+	void CDemoProjectDlg::DeleteListControl(CListCtrl& listCtr);
+
+	//vector<pair<string, string>>fileLine;
+public:
+	  map<string, vector<double>>m_csvData;
+	 //map<string, vector<double>>::iterator it;
+	 // static int test;
+	
+	
 };

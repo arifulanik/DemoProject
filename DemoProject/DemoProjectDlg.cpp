@@ -7,11 +7,23 @@
 #include "DemoProject.h"
 #include "DemoProjectDlg.h"
 #include "afxdialogex.h"
+#include <string>
+#include <fstream>
+#include <sstream>
+#include <vector>
+#include <iostream>
+#include <algorithm>
+#include <map>
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
 
+using namespace std;
+vector<pair<string, string>>fileLine;
+//map<string, vector<double>>m_csvData;
+map<string, vector<double>>::iterator it;
+//map<string, vector<double>>m_csvData;
 
 // CAboutDlg dialog used for App About
 
@@ -48,21 +60,20 @@ END_MESSAGE_MAP()
 
 // CDemoProjectDlg dialog
 
-
-
 CDemoProjectDlg::CDemoProjectDlg(CWnd* pParent /*=nullptr*/)
 	: CDialogEx(IDD_DEMOPROJECT_DIALOG, pParent)
 	, m_pwndShow(NULL)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
+	TreeSoft = new CTreeCtrl;
 }
 
 void CDemoProjectDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
 	DDX_Control(pDX, IDD_DEMOPROJECT_DIALOG, m_Tab);
-	DDX_Control(pDX, IDC_LIST1, m_listCtrl);
 	DDX_Control(pDX, IDC_LoadCSV_Btn, m_btnLoadCSV);
+	DDX_Control(pDX, IDC_LIST1, m_ListCtrl);
 }
 
 BEGIN_MESSAGE_MAP(CDemoProjectDlg, CDialogEx)
@@ -70,7 +81,7 @@ BEGIN_MESSAGE_MAP(CDemoProjectDlg, CDialogEx)
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
 	ON_NOTIFY(TCN_SELCHANGE, IDD_DEMOPROJECT_DIALOG, &CDemoProjectDlg::OnTcnSelchangeTab1)
-	ON_BN_CLICKED(IDC_LoadCSV_Btn, &CDemoProjectDlg::OnBnClickedLoadcsvBtn)
+	ON_BN_CLICKED(IDC_LoadCSV_Btn, &CDemoProjectDlg::OnBnClickedLoadCSV)
 END_MESSAGE_MAP()
 
 
@@ -106,6 +117,14 @@ BOOL CDemoProjectDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// Set small icon
 
 	// TODO: Add extra initialization here
+	// -----------tree control start
+	TreeSoft->Create(WS_CHILD | WS_VISIBLE | WS_BORDER | WS_TABSTOP |
+		TVS_HASLINES | TVS_HASBUTTONS | TVS_LINESATROOT |
+		TVS_SINGLEEXPAND | TVS_SHOWSELALWAYS |
+		TVS_TRACKSELECT,
+		CRect(60, 150, 215, 350), this, 0x1221);
+	// -----------tree control end---------------
+	// -----------tab contorl start--------------
 	CString strTmp = L"";
 	for (int i = 1; i <= 2; ++i) {
 		strTmp.Format(L"%dth Tab", i);
@@ -121,37 +140,9 @@ BOOL CDemoProjectDlg::OnInitDialog()
 	m_First.SetWindowPos(NULL, 5, 25, rect.Width() - 10, rect.Height() - 30, SWP_SHOWWINDOW | SWP_NOZORDER);
 	m_pwndShow = &m_Second;
 
-	// list control code
-	m_listCtrl.InsertColumn(
-		0,              // Rank/order of item 
-		L"ID",          // Caption for this header 
-		LVCFMT_LEFT,    // Relative position of items under header 
-		100);           // Width of items under header
+	// -----------list control code----------
 
-	m_listCtrl.InsertColumn(1, L"Name", LVCFMT_CENTER, 80);
-	m_listCtrl.InsertColumn(2, L"Age", LVCFMT_LEFT, 100);
-	m_listCtrl.InsertColumn(3, L"Address", LVCFMT_LEFT, 80);
-
-	int nItem;
-
-	nItem = m_listCtrl.InsertItem(0, L"1");
-	m_listCtrl.SetItemText(nItem, 1, L"Mark");
-	m_listCtrl.SetItemText(nItem, 2, L"45");
-	m_listCtrl.SetItemText(nItem, 3, L"Address 1");
-
-	nItem = m_listCtrl.InsertItem(0, L"2");
-	m_listCtrl.SetItemText(nItem, 1, L"Allan");
-	m_listCtrl.SetItemText(nItem, 2, L"29");
-	m_listCtrl.SetItemText(nItem, 3, L"Address 2");
-	/*m_listCtrl.InsertItem(1, L"Name");
-	m_listCtrl.InsertItem(7, L"2nd item");
-	m_listCtrl.InsertItem(2, L"3nd item");
-	m_listCtrl.InsertItem(3, L"4nd item");
-	m_listCtrl.InsertItem(4, L"5nd item");
-	m_listCtrl.InsertItem(5, L"6nd item");
-	m_listCtrl.InsertItem(6, L"7nd item");
-	m_listCtrl.InsertItem(8, L"8nd item");
-	m_listCtrl.InsertItem(9, L"9nd item");*/
+	// -----------list contorl end--------------
 
 
 
@@ -207,12 +198,10 @@ HCURSOR CDemoProjectDlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
-
-
 void CDemoProjectDlg::OnTcnSelchangeTab1(NMHDR* pNMHDR, LRESULT* pResult)
 {
 	// TODO: Add your control notification handler code here
-	//m_pwndShow = NULL;
+	m_pwndShow = NULL;
 	if (m_pwndShow != NULL) {
 		m_pwndShow->ShowWindow(SW_HIDE);
 		m_pwndShow = NULL;
@@ -229,13 +218,136 @@ void CDemoProjectDlg::OnTcnSelchangeTab1(NMHDR* pNMHDR, LRESULT* pResult)
 		m_First.ShowWindow(SW_HIDE);
 		m_pwndShow = &m_Second;
 		break;
-	
+	default:
+		m_First.ShowWindow(SW_SHOW);
+		m_Second.ShowWindow(SW_HIDE);
+		m_pwndShow = &m_First;
+		break;
 	}
 	*pResult = 0;
 }
 
-
-void CDemoProjectDlg::OnBnClickedLoadcsvBtn()
+void CDemoProjectDlg::OnBnClickedLoadCSV()
 {
 	// TODO: Add your control notification handler code here
+	//TreeSoft->DeleteAllItems();
+	m_ListCtrl.DeleteAllItems();
+	CFileDialog dlg(TRUE, _T(".csv"), NULL, OFN_FILEMUSTEXIST, _T("CSV Files (*.csv)|*.csv||"), this);
+	if (dlg.DoModal() == IDOK)
+	{
+		CString filePath = dlg.GetPathName();
+	    LoadCSVFile(filePath);// csv file is loaded here
+		CFirstDialog objFirst;
+		objFirst.btnFlag = true;
+		objFirst.copyMap = m_csvData;
+		//m_editCSVData.SetWindowText(csvData);
+	}
+}
+
+void CDemoProjectDlg::LoadCSVFile(const CString& filePath)
+{
+	// read the header
+	ifstream file(filePath);
+	string header;
+	m_csvData.clear();
+	DeleteListControl(m_ListCtrl);
+    if (std::getline(file, header))
+	{
+		// Parse the header line
+		istringstream headerStream(header);
+		string columnName;
+		int i = 0;
+		while (std::getline(headerStream, columnName, ','))
+		{
+			// Insert the column name as the key in the map
+			//vector<double> tmp;
+			m_csvData[columnName];
+			m_ListCtrl.InsertColumn(i, CA2T(columnName.c_str()), LVCFMT_LEFT, 150);//inserting list headings
+			i++;
+		}
+	}
+	string line;
+	int rowNo = 0,item;
+	vector<vector<string>>values;
+	while (getline(file, line))
+	{
+		istringstream lineStream(line);
+		string value;
+		//size_t columnIndex = 0;
+	    it = m_csvData.begin();
+		//test = 100;
+		int colNo = 0;
+		bool flag = false;
+		vector<string>vec;
+
+		while (std::getline(lineStream, value, ','))
+		{
+			// Add the value to the corresponding column vector in the map
+			it->second.push_back(stod(value));
+			vec.push_back(value);
+			//if (flag == false){
+			//	flag = true;
+			//	item = m_ListCtrl.InsertItem(colNo, CA2T(value.c_str()));
+			//}
+			//else
+			//{
+			//	vec.push_back(value);
+			//	m_ListCtrl.SetItemText(item, colNo, CA2T(value.c_str()));//adding list item
+			//}
+			it++; colNo++;
+			
+		}
+		values.push_back(vec);
+		//rowNo++;
+	}
+
+	//int item;
+	for (int row=values.size()-1; row>=0; row--) {
+		bool flag = FALSE;
+		int colNo = 0;
+		for (int col = 0; col < values[row].size(); col++) {
+			string val = values[row][col];
+			if (flag == FALSE) {
+				item = m_ListCtrl.InsertItem(colNo, CA2T(val.c_str()));
+				flag = TRUE;
+			}
+			else m_ListCtrl.SetItemText(item, colNo, CA2T(val.c_str()));
+			colNo++;
+		}
+	}
+	
+	file.close();
+	showTree();
+	//showList();
+}
+
+void CDemoProjectDlg::showTree() {
+	/*TreeSoft->Create(WS_CHILD | WS_VISIBLE | WS_BORDER | WS_TABSTOP |
+		TVS_HASLINES | TVS_HASBUTTONS | TVS_LINESATROOT |
+		TVS_SINGLEEXPAND | TVS_SHOWSELALWAYS |
+		TVS_TRACKSELECT,
+		CRect(60, 150, 215, 350), this, 0x1221);*/
+	//if (TreeSoft != NULL) {
+	//	TreeSoft->DeleteAllItems();
+	//	//CleanTreeControl();
+	//}
+	
+	HTREEITEM root, levelOne, levelTwo;
+	root = TreeSoft->InsertItem(L"Used Variables", TVI_ROOT);
+	for (auto header : m_csvData){
+		TreeSoft->InsertItem(CA2T(header.first.c_str()), root);
+	}
+}
+
+void CDemoProjectDlg:: DeleteListControl(CListCtrl& listCtrl) {
+	// Get the number of columns in the list control.
+	int nColumnCount = listCtrl.GetHeaderCtrl()->GetItemCount();
+
+	// Delete all of the columns.
+	for (int i = 0; i < nColumnCount; i++) {
+		listCtrl.DeleteColumn(0);
+	}
+
+	// Delete all of the items in the list control.
+	listCtrl.DeleteAllItems();
 }
