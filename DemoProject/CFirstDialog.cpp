@@ -39,6 +39,15 @@ BOOL CFirstDialog::OnInitDialog(){
 	CDemoProjectDlg obj;
 	bool &btnFlag = obj.btnClickFlag;
 	if (btnFlag == true)AddComboItems();
+	m_Box1.AddString(L"1");
+	m_Box1.AddString(L"2");
+	m_Box1.AddString(L"3");
+	m_Box1.AddString(L"4");
+
+	m_Box2.AddString(L"1");
+	m_Box2.AddString(L"2");
+	m_Box2.AddString(L"3");
+	m_Box2.AddString(L"4");
 
 	return true;
 }
@@ -69,11 +78,16 @@ void CFirstDialog::AddComboItems(){
 	/*for (auto val : dummy) {
 		m_Box1.AddString(CA2T(val.first.c_str()));
 		m_Box2.AddString(CA2T(val.first.c_str()));
-	}
-	/*m_Box1.AddString(L"1");
+	}*/
+	m_Box1.AddString(L"1");
 	m_Box1.AddString(L"2");
 	m_Box1.AddString(L"3");
-	m_Box1.AddString(L"4");*/
+	m_Box1.AddString(L"4");
+
+	m_Box2.AddString(L"1");
+	m_Box2.AddString(L"2");
+	m_Box2.AddString(L"3");
+	m_Box2.AddString(L"4");
 }
 
 
