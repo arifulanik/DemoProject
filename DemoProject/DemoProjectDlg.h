@@ -40,6 +40,7 @@ protected:
 	afx_msg void OnPaint();
 	afx_msg HCURSOR OnQueryDragIcon();
 	//afx_msg BOOL OnInitDialog();
+	friend class CFirstDialog;
 
 	DECLARE_MESSAGE_MAP()
 public:
@@ -58,12 +59,15 @@ public:
 
 	CListCtrl m_ListCtrl;
 	void CDemoProjectDlg::DeleteListControl(CListCtrl& listCtr);
-
+	map<string, vector<double>>m_csvData;
 	//vector<pair<string, string>>fileLine;
 public:
-	  map<string, vector<double>>m_csvData;
+	  
 	 //map<string, vector<double>>::iterator it;
-	 // static int test;
+	   int shared_variable=100;
+	   //static int testStatic;
+	   bool btnClickFlag = false;
+	  
 	
 	
 };

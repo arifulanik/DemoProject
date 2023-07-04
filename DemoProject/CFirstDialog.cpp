@@ -22,7 +22,8 @@ IMPLEMENT_DYNAMIC(CFirstDialog, CDialogEx)
 CFirstDialog::CFirstDialog(CWnd* pParent /*=nullptr*/)
 	: CDialogEx(IDD_First_dialog, pParent)
 {
-	
+	//btnFlag = false;
+	//test++;
 
 }
 
@@ -32,7 +33,13 @@ CFirstDialog::~CFirstDialog()
 
 BOOL CFirstDialog::OnInitDialog(){
 	CDialogEx::OnInitDialog();
-     if(btnFlag== true)AddComboItems();
+
+	//int value = CDemoProjectDlg::shared_variable;
+    //AddComboItems();
+	CDemoProjectDlg obj;
+	bool &btnFlag = obj.btnClickFlag;
+	if (btnFlag == true)AddComboItems();
+
 	return true;
 }
 
@@ -51,11 +58,13 @@ END_MESSAGE_MAP()
 
 // CFirstDialog message handlers
 
-
 void CFirstDialog::AddComboItems(){
 	
 	CDemoProjectDlg obj;
-	//int test_int=obj.test;
+	int& value = obj.shared_variable;
+	AfxMessageBox(value);
+
+
 	//map<string, vector<double>>dummy = obj.m_csvData; 
 	/*for (auto val : dummy) {
 		m_Box1.AddString(CA2T(val.first.c_str()));

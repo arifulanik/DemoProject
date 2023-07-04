@@ -143,8 +143,8 @@ BOOL CDemoProjectDlg::OnInitDialog()
 	// -----------list control code----------
 
 	// -----------list contorl end--------------
-
-
+	shared_variable = 500;
+	//testStatic = 50;
 
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
@@ -230,18 +230,19 @@ void CDemoProjectDlg::OnTcnSelchangeTab1(NMHDR* pNMHDR, LRESULT* pResult)
 void CDemoProjectDlg::OnBnClickedLoadCSV()
 {
 	// TODO: Add your control notification handler code here
-	//TreeSoft->DeleteAllItems();
+	TreeSoft->DeleteAllItems();
 	m_ListCtrl.DeleteAllItems();
 	CFileDialog dlg(TRUE, _T(".csv"), NULL, OFN_FILEMUSTEXIST, _T("CSV Files (*.csv)|*.csv||"), this);
 	if (dlg.DoModal() == IDOK)
 	{
 		CString filePath = dlg.GetPathName();
 	    LoadCSVFile(filePath);// csv file is loaded here
-		CFirstDialog objFirst;
-		objFirst.btnFlag = true;
-		objFirst.copyMap = m_csvData;
+		btnClickFlag = true;
+		
+		//objFirst.copyMap = m_csvData;
 		//m_editCSVData.SetWindowText(csvData);
 	}
+	shared_variable = 500;
 }
 
 void CDemoProjectDlg::LoadCSVFile(const CString& filePath)
@@ -332,7 +333,7 @@ void CDemoProjectDlg::showTree() {
 	//	//CleanTreeControl();
 	//}
 	
-	HTREEITEM root, levelOne, levelTwo;
+	HTREEITEM root;// , levelOne, levelTwo;
 	root = TreeSoft->InsertItem(L"Used Variables", TVI_ROOT);
 	for (auto header : m_csvData){
 		TreeSoft->InsertItem(CA2T(header.first.c_str()), root);

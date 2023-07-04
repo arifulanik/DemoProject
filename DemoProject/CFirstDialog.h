@@ -37,7 +37,8 @@ public:
 	CComboBox m_Box1;
 	CComboBox m_Box2;
 	void AddComboItems();
-    map<string, vector<double>>copyMap;
-	bool btnFlag{ false };
+    //map<string, vector<double>>copyMap;
+	//bool& btnFlag;
 	afx_msg void OnBnClickedButton1();
+	 //int test;
 };
