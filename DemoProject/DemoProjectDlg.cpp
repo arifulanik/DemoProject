@@ -86,11 +86,11 @@ END_MESSAGE_MAP()
 
 
 // CDemoProjectDlg message handlers
-
+CDemoProjectDlg* CDemoProjectDlg::basePointer = NULL;
 BOOL CDemoProjectDlg::OnInitDialog()
 {
 	CDialogEx::OnInitDialog();
-
+	basePointer = this;
 	// Add "About..." menu item to system menu.
 
 	// IDM_ABOUTBOX must be in the system command range.
@@ -138,8 +138,12 @@ BOOL CDemoProjectDlg::OnInitDialog()
 
 	m_First.Create(IDD_First_dialog, &m_Tab);
 	m_First.SetWindowPos(NULL, 5, 25, rect.Width() - 10, rect.Height() - 30, SWP_SHOWWINDOW | SWP_NOZORDER);
-	m_pwndShow = &m_Second;
+	m_pwndShow = &m_First;
 
+
+	m_First.ShowWindow(SW_SHOW);
+	m_Second.ShowWindow(SW_HIDE);
+	m_pwndShow = &m_First;
 	// -----------list control code----------
 
 	// -----------list contorl end--------------
@@ -202,10 +206,11 @@ void CDemoProjectDlg::OnTcnSelchangeTab1(NMHDR* pNMHDR, LRESULT* pResult)
 {
 	// TODO: Add your control notification handler code here
 	m_pwndShow = NULL;
-	if (m_pwndShow != NULL) {
+	if (m_pwndShow != NULL){
 		m_pwndShow->ShowWindow(SW_HIDE);
 		m_pwndShow = NULL;
 	}
+	
 	int nIndex = m_Tab.GetCurSel();
 	switch (nIndex) {
 	case 0:
@@ -237,12 +242,17 @@ void CDemoProjectDlg::OnBnClickedLoadCSV()
 	{
 		CString filePath = dlg.GetPathName();
 	    LoadCSVFile(filePath);// csv file is loaded here
-		btnClickFlag = true;
+		//btnClickFlag = true;
+		CFirstDialog* childObject = CFirstDialog::firstDlgPointer;
+		childObject->AddComboItems();
 		
 		//objFirst.copyMap = m_csvData;
 		//m_editCSVData.SetWindowText(csvData);
 	}
-	shared_variable = 500;
+	//shared_variable = 500;
+
+	/*CFirstDialog obj;
+	obj.copyMap = m_csvData;*/
 }
 
 void CDemoProjectDlg::LoadCSVFile(const CString& filePath)

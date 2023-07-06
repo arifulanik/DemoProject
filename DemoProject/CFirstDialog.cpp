@@ -16,7 +16,7 @@
 
 using namespace std;
 // CFirstDialog dialog
-
+map<string, vector<double>>copyMap;
 IMPLEMENT_DYNAMIC(CFirstDialog, CDialogEx)
 
 CFirstDialog::CFirstDialog(CWnd* pParent /*=nullptr*/)
@@ -30,24 +30,13 @@ CFirstDialog::CFirstDialog(CWnd* pParent /*=nullptr*/)
 CFirstDialog::~CFirstDialog()
 {
 }
-
+CFirstDialog* CFirstDialog::firstDlgPointer = NULL;
 BOOL CFirstDialog::OnInitDialog(){
 	CDialogEx::OnInitDialog();
+	__super::OnInitDialog();
+	firstDlgPointer = this;
 
-	//int value = CDemoProjectDlg::shared_variable;
-    //AddComboItems();
-	CDemoProjectDlg obj;
-	bool &btnFlag = obj.btnClickFlag;
-	if (btnFlag == true)AddComboItems();
-	m_Box1.AddString(L"1");
-	m_Box1.AddString(L"2");
-	m_Box1.AddString(L"3");
-	m_Box1.AddString(L"4");
-
-	m_Box2.AddString(L"1");
-	m_Box2.AddString(L"2");
-	m_Box2.AddString(L"3");
-	m_Box2.AddString(L"4");
+	//CDemoProjectDlg obj;
 
 	return true;
 }
@@ -61,7 +50,9 @@ void CFirstDialog::DoDataExchange(CDataExchange* pDX)
 
 
 BEGIN_MESSAGE_MAP(CFirstDialog, CDialogEx)
-	ON_BN_CLICKED(IDC_BUTTON1, &CFirstDialog::OnBnClickedButton1)
+	ON_BN_CLICKED(IDC_BUTTON1, &CFirstDialog::ExportData)
+	ON_CBN_SELCHANGE(IDC_COMBO1, &CFirstDialog::OnCbnSelchangeCombo1)
+	ON_CBN_SELCHANGE(IDC_COMBO2, &CFirstDialog::OnCbnSelchangeCombo2)
 END_MESSAGE_MAP()
 
 
@@ -69,35 +60,84 @@ END_MESSAGE_MAP()
 
 void CFirstDialog::AddComboItems(){
 	
-	CDemoProjectDlg obj;
-	int& value = obj.shared_variable;
-	AfxMessageBox(value);
-
-
-	//map<string, vector<double>>dummy = obj.m_csvData; 
-	/*for (auto val : dummy) {
+	CDemoProjectDlg* baseObjectPointer = CDemoProjectDlg::basePointer;
+	copyMap = baseObjectPointer->m_csvData;
+	map<string, vector<double>>::iterator it = copyMap.begin();
+	string test = it->first;
+	m_Box1.ResetContent();
+	m_Box2.ResetContent();
+	for (auto val : copyMap) {
 		m_Box1.AddString(CA2T(val.first.c_str()));
 		m_Box2.AddString(CA2T(val.first.c_str()));
-	}*/
-	m_Box1.AddString(L"1");
-	m_Box1.AddString(L"2");
-	m_Box1.AddString(L"3");
-	m_Box1.AddString(L"4");
+	}
+	
+}
 
-	m_Box2.AddString(L"1");
-	m_Box2.AddString(L"2");
-	m_Box2.AddString(L"3");
-	m_Box2.AddString(L"4");
+void CFirstDialog::OnCbnSelchangeCombo1()
+{
+	// TODO: Add your control notification handler code here
+	int xIndex = m_Box1.GetCurSel();
+	if (xIndex != CB_ERR)
+	{
+		m_Box1.GetLBText(xIndex, XVal);
+		XFlag = true;
+	}
 }
 
 
-void CFirstDialog::OnBnClickedButton1()
+void CFirstDialog::OnCbnSelchangeCombo2()
 {
 	// TODO: Add your control notification handler code here
-	//map<string, vector<double>>::iterator it = copyMap.begin();
-	//CString str = CA2T(it->first.c_str());
-	//AfxMessageBox(L"Hello");
-	//CDemoProjectDlg obj;
-	//map<string, vector<double>>demo = obj.m_csvData;
-	
+	int yIndex = m_Box2.GetCurSel();
+	if (yIndex != CB_ERR)
+	{
+		m_Box2.GetLBText(yIndex, YVal);
+		YFlag = true;
+	}
+}
+void CFirstDialog::ExportData()
+{
+	// TODO: Add your control notification handler code here
+	if (XFlag && YFlag) {
+		vector<double>xvec, yvec;
+		string xkey = CT2A(XVal);
+		for (auto p : copyMap[xkey]) {
+			xvec.push_back(p);
+		}
+
+		string ykey = CT2A(YVal);
+		for (auto p : copyMap[ykey]) {
+			yvec.push_back(p);
+		}
+		//AfxMessageBox(CA2T(xkey.c_str()));
+		// export to csv file
+
+		std::ofstream outputFile("output.csv");
+		if (outputFile.is_open())
+		{
+			// Write the headers
+			outputFile << CT2A(XVal) << ","<< CT2A(YVal) << endl;
+
+			// Determine the maximum size of the vectors
+			//size_t maxSize = std::max(xvec.size(), yvec.size());
+
+			// Iterate over the vectors
+			for (size_t i = 0; i < xvec.size(); i++)
+			{
+				// Write vector1 value if available
+				outputFile << xvec[i];
+
+				outputFile << ",";
+
+				// Write vector2 value if available
+				outputFile << yvec[i];
+
+				outputFile << std::endl;
+			}
+
+			// Close the file
+			outputFile.close();
+		}
+	}
+
 }

@@ -29,16 +29,20 @@ public:
 
 protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
-
-
 	DECLARE_MESSAGE_MAP()
 public:
 
 	CComboBox m_Box1;
 	CComboBox m_Box2;
 	void AddComboItems();
-    //map<string, vector<double>>copyMap;
+    map<string, vector<double>>copyMap;
 	//bool& btnFlag;
-	afx_msg void OnBnClickedButton1();
+	afx_msg void ExportData();
 	 //int test;
+	static CFirstDialog* firstDlgPointer; 
+	afx_msg void OnCbnSelchangeCombo1();
+	afx_msg void OnCbnSelchangeCombo2();
+	CString XVal, YVal;
+	BOOL XFlag, YFlag=false;
+
 };

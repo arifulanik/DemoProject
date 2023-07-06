@@ -67,6 +67,7 @@ public:
 	   int shared_variable=100;
 	   //static int testStatic;
 	   bool btnClickFlag = false;
+	   static CDemoProjectDlg* basePointer;
 	  
 	
 	
