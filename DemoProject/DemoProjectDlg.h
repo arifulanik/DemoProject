@@ -12,6 +12,7 @@
 #include <iostream>
 #include <algorithm>
 #include <map>
+#include "hpdf.h"
 
 using namespace std;
 // CDemoProjectDlg dialog
@@ -68,7 +69,7 @@ public:
 	   //static int testStatic;
 	   bool btnClickFlag = false;
 	   static CDemoProjectDlg* basePointer;
-	  
-	
-	
+	   //PDF MEMBERS
+	   jmp_buf env;
+	   afx_msg void OnBnClickedExportPdf();
 };

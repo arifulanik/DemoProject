@@ -82,6 +82,8 @@ BEGIN_MESSAGE_MAP(CDemoProjectDlg, CDialogEx)
 	ON_WM_QUERYDRAGICON()
 	ON_NOTIFY(TCN_SELCHANGE, IDD_DEMOPROJECT_DIALOG, &CDemoProjectDlg::OnTcnSelchangeTab1)
 	ON_BN_CLICKED(IDC_LoadCSV_Btn, &CDemoProjectDlg::OnBnClickedLoadCSV)
+	
+	ON_BN_CLICKED(IDC_EXPORT_PDF, &CDemoProjectDlg::OnBnClickedExportPdf)
 END_MESSAGE_MAP()
 
 
@@ -125,9 +127,9 @@ BOOL CDemoProjectDlg::OnInitDialog()
 		CRect(60, 150, 215, 350), this, 0x1221);
 	// -----------tree control end---------------
 	// -----------tab contorl start--------------
-	CString strTmp = L"";
+	CString strTmp = " ";
 	for (int i = 1; i <= 2; ++i) {
-		strTmp.Format(L"%dth Tab", i);
+		strTmp.Format("%dth Tab", i);
 		m_Tab.InsertItem(i, strTmp);
 	}
 	CRect rect;
@@ -243,9 +245,10 @@ void CDemoProjectDlg::OnBnClickedLoadCSV()
 		CString filePath = dlg.GetPathName();
 	    LoadCSVFile(filePath);// csv file is loaded here
 		//btnClickFlag = true;
+
 		CFirstDialog* childObject = CFirstDialog::firstDlgPointer;
 		childObject->AddComboItems();
-		
+		//OnBnClickedExportPdf();
 		//objFirst.copyMap = m_csvData;
 		//m_editCSVData.SetWindowText(csvData);
 	}
@@ -344,7 +347,7 @@ void CDemoProjectDlg::showTree() {
 	//}
 	
 	HTREEITEM root;// , levelOne, levelTwo;
-	root = TreeSoft->InsertItem(L"Used Variables", TVI_ROOT);
+	root = TreeSoft->InsertItem("Used Variables", TVI_ROOT);
 	for (auto header : m_csvData){
 		TreeSoft->InsertItem(CA2T(header.first.c_str()), root);
 	}
@@ -361,4 +364,133 @@ void CDemoProjectDlg:: DeleteListControl(CListCtrl& listCtrl) {
 
 	// Delete all of the items in the list control.
 	listCtrl.DeleteAllItems();
+}
+
+
+
+
+
+void CDemoProjectDlg::OnBnClickedExportPdf()
+{
+	// TODO: Add your control notification handler code here
+	// TODO: Add your control notification handler code here
+	//initializing
+	HPDF_Doc pdf;
+	HPDF_Page page;
+	HPDF_Font font;
+	HPDF_Image image;
+	char filename[256];
+
+	// declearing file object
+	pdf = HPDF_New(NULL, NULL);
+	if (!pdf) {
+		printf("error:can't create pdfObject\n");
+		return;
+	}
+	if (setjmp(env)) {
+		HPDF_Free(pdf);
+		return;
+	}
+
+	//Adding a new page
+	page = HPDF_AddPage(pdf);
+	HPDF_Page_SetSize(page, HPDF_PAGE_SIZE_A4, HPDF_PAGE_PORTRAIT);
+
+	// Adding text
+	CString name = "Ariful";
+	CString Varsity = "CUET";
+	CString CGPA = "...";
+	CString Date = "10-07-2023";
+
+	font = HPDF_GetFont(pdf, "Helvetica", NULL);
+	HPDF_Page_BeginText(page);// start writing
+
+	HPDF_Page_SetFontAndSize(page, font, 11);
+	HPDF_Page_TextRect(page, 50, 800, 400, 5, "Name: " + name, HPDF_TALIGN_LEFT, NULL);//Left,top,width,height,text,align
+	HPDF_Page_TextRect(page, 50, 790, 400, 5, "varsity:" + Varsity, HPDF_TALIGN_LEFT, NULL);//Left,top,width,height,text,align
+	HPDF_Page_TextRect(page, 50, 770, 400, 5, "CGPA:" + CGPA, HPDF_TALIGN_LEFT, NULL);//Left,top,width,height,text,align
+	HPDF_Page_TextRect(page, 250, 800, 400, 5, "Date:" + Date, HPDF_TALIGN_LEFT, NULL);//Left,top,width,height,text,align
+
+	HPDF_Page_EndText(page);//end writing
+
+	// Adding box
+	HPDF_Page_Rectangle(page, 45, 750, 480, 90);
+	HPDF_Page_Stroke(page);
+	/*HPDF_Page_Circle(page, 250, 600, LINECAPS);
+	HPDF_Page_Stroke(page);*/
+	// image adding to pdf
+	HPDF_REAL x_img = 400;
+	HPDF_REAL y_img = 750;
+	image = HPDF_LoadJpegImageFromFile(pdf, "download1.jfif");
+	HPDF_Page_DrawImage(page, image, x_img, y_img, 140, 70);
+	HPDF_Page_SetLineWidth(page, 1.0);
+
+	//Adding table
+
+	map<string, vector<double>>::iterator it = m_csvData.begin();
+	int totalRow = m_csvData.size();
+	vector<CString>headings;
+	vector<vector<CString>>values(totalRow,vector<CString>());
+	int i = 0;//1
+	for (auto head : m_csvData){
+		headings.push_back((head.first.c_str()));
+		for (auto x : head.second){
+			CString str;
+			str.Format("%d", (int)x);
+			values[i].push_back(str);
+		}
+		i++;
+		
+	}
+	
+	//vector<vector<CString>>values(totalRow + 1,vector<CString>());
+	vector<vector<CString>> e_val(values[0].size(),vector<CString>(values.size()));
+
+	for (int row = 0; row <values.size(); ++row){
+		for (int col = 0; col < values[0].size(); ++col) {
+			e_val[col][row] = values[row][col];                 
+		}
+	}
+	int sz = e_val.size();
+	
+	for (int col = 0; col < headings.size(); ++col) {
+		//CString val = CA2T(it->first.c_str());
+		HPDF_Page_BeginText(page);
+		HPDF_Page_SetFontAndSize(page, font, 10);
+		HPDF_Page_TextRect(page, 65 + (col * 50), 720 - (0 * 20), 540, 50, headings[col], HPDF_TALIGN_LEFT, NULL);
+		//else HPDF_Page_TextRect(page, 65 + (col * 50), 720 - (row * 20), 540, 50, val, HPDF_TALIGN_LEFT, NULL);
+		HPDF_Page_EndText(page);
+
+		HPDF_Page_Rectangle(page, 50 + (col * 50), 700 - (0 * 20), 50, 20);
+		HPDF_Page_Stroke(page);
+	}
+
+	int rows = e_val.size();
+	int cols = e_val[0].size();
+	for(int row=0;row<rows;row++){
+		for (int col = 0; col <cols; ++col) {
+			//CString val = CA2T(it->first.c_str());
+			HPDF_Page_BeginText(page);
+			HPDF_Page_SetFontAndSize(page, font, 10);
+			HPDF_Page_TextRect(page, 65 + (col * 50), 720 - ((row+1) * 20), 540, 50, e_val[row][col], HPDF_TALIGN_LEFT, NULL);
+			//else HPDF_Page_TextRect(page, 65 + (col * 50), 720 - (row * 20), 540, 50, val, HPDF_TALIGN_LEFT, NULL);
+			HPDF_Page_EndText(page);
+
+			HPDF_Page_Rectangle(page, 50 + (col * 50), 700 - ((row+1) * 20), 50, 20);
+			HPDF_Page_Stroke(page);
+		}
+	}
+	//// Adding another page
+	//page = HPDF_AddPage(pdf);
+	//HPDF_Page_SetSize(page, HPDF_PAGE_SIZE_A4, HPDF_PAGE_PORTRAIT);
+
+	//Saving pdf .It should be at the end of the file
+	//strcpy_s(filename, "demo");
+	strcpy_s(filename, "demo.pdf");
+
+	HPDF_SaveToFile(pdf, filename);
+
+	//clean up
+	HPDF_Free(pdf);
+
 }
