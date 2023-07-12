@@ -397,10 +397,10 @@ void CDemoProjectDlg::OnBnClickedExportPdf()
 	HPDF_Page_SetSize(page, HPDF_PAGE_SIZE_A4, HPDF_PAGE_PORTRAIT);
 
 	// Adding text
-	CString name = "Ariful";
+	CString name = "Ariful Islam";
 	CString Varsity = "CUET";
 	CString CGPA = "...";
-	CString Date = "10-07-2023";
+	CString Date = "12-07-2023";
 
 	font = HPDF_GetFont(pdf, "Helvetica", NULL);
 	HPDF_Page_BeginText(page);// start writing
